@@ -1,4 +1,4 @@
-# Full stack -websovelluskehitys kevät 2021
+# Full stack -websovelluskehitys
 
 ## Tehtäväpalautukset
 Osa 0
