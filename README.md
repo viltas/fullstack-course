@@ -1,7 +1,7 @@
 # Full stack -websovelluskehitys
 
 ## Tehtäväpalautukset
-Osa 0
+[Osa 0](https://github.com/viltas/fullstack-course/tree/master/osa0)
 
 Osa 1
 
