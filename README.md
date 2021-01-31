@@ -3,7 +3,7 @@
 ## Tehtäväpalautukset
 [Osa 0](https://github.com/viltas/fullstack-course/tree/master/osa0)
 
-Osa 1
+[Osa 1](https://github.com/viltas/fullstack-course/tree/master/osa1)
 
 Osa 2
 
