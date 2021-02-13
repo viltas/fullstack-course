@@ -7,7 +7,7 @@
 
 [Osa 2](https://github.com/viltas/fullstack-course/tree/master/osa2)
 
-Osa 3
+[Osa 3](https://github.com/viltas/fullstack-osa3/)
 
 Osa 4
 
