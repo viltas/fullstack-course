@@ -51,7 +51,7 @@ const initialBlogs = [
     url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
     likes: 2,
     __v: 0
-  }  
+  }
 ]
 
 beforeEach(async () => {
@@ -85,6 +85,110 @@ test('blogs have the id field', async () => {
   const response = await api.get('/api/blogs')
   expect(response.body[0].id).toBeDefined()
 })
+
+test('a blog can be added ', async () => {
+  const newBlog = {
+    title: 'Ankeriaiden torjunta ilmatyynyaluksissa',
+    author: 'Abraham Liemi',
+    url: 'https://onkosinunkinilmatyynyaluksesitaynnaankeriaita.com/',
+    likes: 1,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const author = response.body.map(r => r.author)
+  const title = response.body.map(r => r.title)
+
+  expect(response.body).toHaveLength(6)
+  expect(author).toContain(
+    'Abraham Liemi'
+  )
+  expect(title).toContain(
+    'Ankeriaiden torjunta ilmatyynyaluksissa'
+  )
+})
+
+test('likes are 0 by default', async () => {
+  const newBlog = {
+    title: 'apua kissani hohtaa pimeässä',
+    author: 'Bruno DH. Struttenstottensnoff',
+    url: 'https://kissajuttuja.net/',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body[response.body.length - 1].likes).toEqual(0)
+})
+
+test('bad request error if title not given', async () => {
+  const response = await api.get('/api/blogs')
+
+  const newBlog = {
+    author: 'elmeri peterson',
+    url: 'https://whoneedsatitle.ab.cd.uk/',
+  }
+
+  await api
+    .delete('0')
+    .send(newBlog)
+    .expect(400)
+
+  const newResponse = await api.get('/api/blogs')
+
+  expect(response.body).toHaveLength(newResponse.body.length)
+})
+
+test('bad request error if url not given', async () => {
+  const response = await api.get('/api/blogs')
+
+  const newBlog = {
+    title: 'who needs an url',
+    author: 'arhippa peltonen',
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const newResponse = await api.get('/api/blogs')
+  expect(response.body).toHaveLength(newResponse.body.length)
+})
+
+
+test('a blog can be deleted', async () => {
+  const response = await api.get('/api/blogs')
+  console.log(response.body.length)
+
+  await api
+    .post('/api/blogs/delete/0')
+
+  const newResponse = await api.get('/api/blogs')
+  console.log(newResponse.body.length)
+
+  const author = newResponse.body.map(r => r.author)
+  const title = newResponse.body.map(r => r.title)
+
+  !expect(author).toContain(
+    'Michael Chan'
+  )
+  !expect(title).toContain(
+    'React Patterns'
+  )
+})
+
+
 
 afterAll(() => {
   mongoose.connection.close()
