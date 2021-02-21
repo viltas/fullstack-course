@@ -68,127 +68,148 @@ beforeEach(async () => {
   await blogObj.save()
 })
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+describe('when viewing blogs', () => {
+
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('there are five blogs', async () => {
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(5)
+  })
+
+  test('blogs have the id field', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body[0].id).toBeDefined()
+  })
+
 })
 
-test('there are five blogs', async () => {
-  const response = await api.get('/api/blogs')
+describe('when saving a new blog', () => {
 
-  expect(response.body).toHaveLength(5)
-})
+  test('a blog can be saved ', async () => {
+    const newBlog = {
+      title: 'Ankeriaiden torjunta ilmatyynyaluksissa',
+      author: 'Abraham Liemi',
+      url: 'https://onkosinunkinilmatyynyaluksesitaynnaankeriaita.com/',
+      likes: 1,
+    }
 
-test('blogs have the id field', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body[0].id).toBeDefined()
-})
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-test('a blog can be added ', async () => {
-  const newBlog = {
-    title: 'Ankeriaiden torjunta ilmatyynyaluksissa',
-    author: 'Abraham Liemi',
-    url: 'https://onkosinunkinilmatyynyaluksesitaynnaankeriaita.com/',
-    likes: 1,
-  }
+    const response = await api.get('/api/blogs')
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+    const author = response.body.map(r => r.author)
+    const title = response.body.map(r => r.title)
 
-  const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(6)
+    expect(author).toContain(
+      'Abraham Liemi'
+    )
+    expect(title).toContain(
+      'Ankeriaiden torjunta ilmatyynyaluksissa'
+    )
+  })
 
-  const author = response.body.map(r => r.author)
-  const title = response.body.map(r => r.title)
+  test('likes are 0 by default', async () => {
+    const newBlog = {
+      title: 'apua kissani hohtaa pimeässä',
+      author: 'Bruno DH. Struttenstottensnoff',
+      url: 'https://kissajuttuja.net/',
+    }
 
-  expect(response.body).toHaveLength(6)
-  expect(author).toContain(
-    'Abraham Liemi'
-  )
-  expect(title).toContain(
-    'Ankeriaiden torjunta ilmatyynyaluksissa'
-  )
-})
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-test('likes are 0 by default', async () => {
-  const newBlog = {
-    title: 'apua kissani hohtaa pimeässä',
-    author: 'Bruno DH. Struttenstottensnoff',
-    url: 'https://kissajuttuja.net/',
-  }
+    const response = await api.get('/api/blogs')
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-
-  const response = await api.get('/api/blogs')
-
-  expect(response.body[response.body.length - 1].likes).toEqual(0)
-})
-
-test('bad request error if title not given', async () => {
-  const response = await api.get('/api/blogs')
-
-  const newBlog = {
-    author: 'elmeri peterson',
-    url: 'https://whoneedsatitle.ab.cd.uk/',
-  }
-
-  await api
-    .delete('0')
-    .send(newBlog)
-    .expect(400)
-
-  const newResponse = await api.get('/api/blogs')
-
-  expect(response.body).toHaveLength(newResponse.body.length)
-})
-
-test('bad request error if url not given', async () => {
-  const response = await api.get('/api/blogs')
-
-  const newBlog = {
-    title: 'who needs an url',
-    author: 'arhippa peltonen',
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(400)
-
-  const newResponse = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(newResponse.body.length)
-})
+    expect(response.body[response.body.length - 1].likes).toEqual(0)
+  })
 
 
-test('a blog can be deleted', async () => {
-  const response = await api.get('/api/blogs')
-  console.log(response.body.length)
 
-  await api
-    .post('/api/blogs/delete/0')
+  test('fails with statuscode 400 if title not given', async () => {
 
-  const newResponse = await api.get('/api/blogs')
-  console.log(newResponse.body.length)
+    const newBlog = {
+      author: 'elmeri peterson',
+      url: 'https://whoneedsatitle.ab.cd.uk/',
+    }
 
-  const author = newResponse.body.map(r => r.author)
-  const title = newResponse.body.map(r => r.title)
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
 
-  !expect(author).toContain(
-    'Michael Chan'
-  )
-  !expect(title).toContain(
-    'React Patterns'
-  )
+  })
+
+  test('fails with statuscode 400 if url not given', async () => {
+
+    const newBlog = {
+      title: 'who needs an url',
+      author: 'arhippa peltonen',
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+  })
+
 })
 
 
+describe('when editing blog data', () => {
+
+  test('deleting a blog succeeds with status code 204 if id is valid', async () => {
+    const response = await api.get('/api/blogs')
+    const blogToDelete = response.body[0]
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const responseAfterDelete = await api.get('/api/blogs')
+    expect(responseAfterDelete.body).toHaveLength(
+      response.body.length - 1
+    )
+    const titles = responseAfterDelete.body.map(r => r.title)
+    expect(titles).not.toContain(blogToDelete.title)
+  })
+
+  test('an existing blog can be edited', async () => {
+
+    const response = await api.get('/api/blogs')
+    const blogToEdit = response.body[0]
+
+    const update = {
+      title: blogToEdit.title,
+      author: blogToEdit.author,
+      url: blogToEdit.url,
+      likes: 100,
+      id: blogToEdit.id
+    }
+
+    await api
+      .put(`/api/blogs/${blogToEdit.id}`)
+      .send(update)
+
+    const newResponse = await api.get('/api/blogs')
+    const updatedBlog = newResponse.body[0]
+    expect(updatedBlog.likes).toEqual(100)
+  })
+
+})
 
 afterAll(() => {
   mongoose.connection.close()
