@@ -5,7 +5,6 @@ const api = supertest(app)
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
-
 const initialBlogs = [
   {
     _id: '5a422a851b54a676234d17f7',
@@ -57,6 +56,8 @@ const initialBlogs = [
   }
 ]
 
+var token
+
 beforeEach(async () => {
 
   await User.deleteMany({})
@@ -65,6 +66,11 @@ beforeEach(async () => {
     .post('/api/users')
     .send(testUser)
 
+  const login = await api
+    .post('/api/login')
+    .send({ username: 'test', password: 'salasana' })
+
+  token = (login.body.token)
 
   await Blog.deleteMany({})
   let blogObj = new Blog(initialBlogs[0])
@@ -82,6 +88,9 @@ beforeEach(async () => {
 describe('when viewing blogs', () => {
 
   test('blogs are returned as json', async () => {
+
+
+
     await api
       .get('/api/blogs')
       .expect(200)
@@ -90,6 +99,8 @@ describe('when viewing blogs', () => {
 
   test('there are five blogs', async () => {
     const response = await api.get('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
+
 
     expect(response.body).toHaveLength(5)
   })
@@ -115,7 +126,7 @@ describe('when saving a new blog', () => {
       .post('/api/login')
       .send({ username: 'test', password: 'salasana' })
 
-    const token = (login.body.token)
+    token = login.body.token
 
     await api
       .post('/api/blogs')
@@ -242,7 +253,7 @@ describe('when editing blog data', () => {
       .send(newBlog)
 
     const response = await api.get('/api/blogs')
-    const blogToDelete = response.body[response.body.length-1]
+    const blogToDelete = response.body[response.body.length - 1]
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
       .set('Authorization', 'bearer '.concat(token))
