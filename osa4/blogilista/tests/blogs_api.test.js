@@ -3,6 +3,9 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
+
+
 const initialBlogs = [
   {
     _id: '5a422a851b54a676234d17f7',
@@ -55,6 +58,14 @@ const initialBlogs = [
 ]
 
 beforeEach(async () => {
+
+  await User.deleteMany({})
+  const testUser = { username: 'test', password: 'salasana' }
+  await api
+    .post('/api/users')
+    .send(testUser)
+
+
   await Blog.deleteMany({})
   let blogObj = new Blog(initialBlogs[0])
   await blogObj.save()
@@ -100,8 +111,15 @@ describe('when saving a new blog', () => {
       likes: 1,
     }
 
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'test', password: 'salasana' })
+
+    const token = (login.body.token)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
       .send(newBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -120,15 +138,35 @@ describe('when saving a new blog', () => {
     )
   })
 
+  test('saving blog without valid token returns 401 unauthorized', async () => {
+    const newBlog = {
+      title: 'Vantaa, tuo maamme Vantaa',
+      author: 'Niilo Tulppa',
+      url: 'https://vantaallaonhyvaolla.com/',
+      likes: 1
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+  })
+
   test('likes are 0 by default', async () => {
     const newBlog = {
       title: 'apua kissani hohtaa pimeässä',
       author: 'Bruno DH. Struttenstottensnoff',
       url: 'https://kissajuttuja.net/',
     }
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'test', password: 'salasana' })
+
+    const token = (login.body.token)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
       .send(newBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -146,9 +184,15 @@ describe('when saving a new blog', () => {
       author: 'elmeri peterson',
       url: 'https://whoneedsatitle.ab.cd.uk/',
     }
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'test', password: 'salasana' })
+
+    const token = (login.body.token)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
       .send(newBlog)
       .expect(400)
 
@@ -160,8 +204,15 @@ describe('when saving a new blog', () => {
       title: 'who needs an url',
       author: 'arhippa peltonen',
     }
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'test', password: 'salasana' })
+
+    const token = (login.body.token)
+
     await api
       .post('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
       .send(newBlog)
       .expect(400)
 
@@ -173,10 +224,28 @@ describe('when saving a new blog', () => {
 describe('when editing blog data', () => {
 
   test('deleting a blog succeeds with status code 204 if id is valid', async () => {
+
+    const newBlog = {
+      title: 'apua kissani hohtaa pimeässä',
+      author: 'Bruno DH. Struttenstottensnoff',
+      url: 'https://kissajuttuja.net/',
+    }
+    const login = await api
+      .post('/api/login')
+      .send({ username: 'test', password: 'salasana' })
+
+    const token = (login.body.token)
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization', 'bearer '.concat(token))
+      .send(newBlog)
+
     const response = await api.get('/api/blogs')
-    const blogToDelete = response.body[0]
+    const blogToDelete = response.body[response.body.length-1]
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', 'bearer '.concat(token))
       .expect(204)
 
     const responseAfterDelete = await api.get('/api/blogs')
