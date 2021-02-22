@@ -105,7 +105,7 @@ describe('when viewing blogs', () => {
     expect(response.body).toHaveLength(5)
   })
 
-  test('blogs have the id field', async () => {
+  test('blogs have an id field', async () => {
     const response = await api.get('/api/blogs')
     expect(response.body[0].id).toBeDefined()
   })
