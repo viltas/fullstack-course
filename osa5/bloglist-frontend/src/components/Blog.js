@@ -36,7 +36,7 @@ const Blog = ({ blog, likeBlog, deleteBlog, user }) => {
 
   if (visible === true) {
     return (
-      <div className='blog' style={blogStyle}>
+      <div id={blog.title} className={'blog'} style={blogStyle}>
         {blog.title} {blog.author}
         <div className='blog-full'>
           <p>url: {blog.url}</p>
@@ -48,7 +48,7 @@ const Blog = ({ blog, likeBlog, deleteBlog, user }) => {
     )
   } else {
     return (
-      <div className='blog' style={blogStyle}>
+      <div id={blog.title} className={'blog'} style={blogStyle}>
         {blog.title} {blog.author}
         <div className='view-button'>
           <button onClick={() => setVisible(true)}>view</button>

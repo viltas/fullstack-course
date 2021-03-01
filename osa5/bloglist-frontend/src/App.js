@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
@@ -21,7 +21,7 @@ const App = () => {
       setBlogs(blogs.sort((a, b) => b.likes - a.likes),
       )
     )
-  }, [])
+  }, [blogs])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
@@ -31,6 +31,9 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  const blogFormRef = useRef()
+
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -54,12 +57,13 @@ const App = () => {
     }
   }
   const addBlog = (blogObj) => {
+    blogFormRef.current.toggleVisibility()
     blogService
       .create(blogObj)
       .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
       })
-    setMessage(`a new blog '${blogObj.title} by ${blogObj.author} added`)
+    setMessage(`a blog '${blogObj.title} by ${blogObj.author} added`)
     setTimeout(() => {
       setMessage(null)
     }, 5000)
@@ -120,6 +124,14 @@ const App = () => {
     )
   }
 
+  const BlogList = () => {
+    return (
+      <div id={'blogs-list'}>{blogs.map(blog =>
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} user={user} />
+      )}</div>
+    )
+  }
+
 
   const loggedIn = () => (
     <div><p>
@@ -128,12 +140,10 @@ const App = () => {
     <form onSubmit={handleLogout}>
       <button type="submit">logout</button>
     </form><p></p>
-    <Togglable buttonLabel='new blog'>
+    <Togglable className={'new-blog'} buttonLabel='new blog' ref={blogFormRef}>
       <BlogForm
         createBlog={addBlog} /></Togglable>
-    {blogs.map(blog =>
-      <Blog key={blog.id} blog={blog} likeBlog={likeBlog} deleteBlog={deleteBlog} user={user} />
-    )}
+    {BlogList()}
     </div>
   )
 
