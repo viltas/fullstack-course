@@ -10,6 +10,8 @@ store.subscribe(() => {
     'store:', storeNow)
 })
 
+
+
 ReactDOM.render(
   <Provider store={store}>
     <App />

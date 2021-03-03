@@ -16,6 +16,7 @@ const AnecdoteList = () => {
         dispatch(voteNotification(anecdote.content))
         setTimeout(function(){ dispatch(hideNotification()) }, 5000);
     }
+    console.log(anecdotes)
 
     return (
         <div>
