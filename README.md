@@ -13,7 +13,7 @@
 
 [Osa 5](https://github.com/viltas/fullstack-course/tree/master/osa5)
 
-Osa 6
+[Osa 6](https://github.com/viltas/fullstack-course/tree/master/osa6)
 
 Osa 7
 
