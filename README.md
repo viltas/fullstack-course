@@ -9,9 +9,9 @@
 
 [Osa 3](https://github.com/viltas/fullstack-osa3/)
 
-Osa 4
+[Osa 4](https://github.com/viltas/fullstack-course/tree/master/osa4)
 
-Osa 5
+[Osa 5](https://github.com/viltas/fullstack-course/tree/master/osa5)
 
 Osa 6
 
