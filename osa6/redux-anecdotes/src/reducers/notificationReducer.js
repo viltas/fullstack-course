@@ -1,11 +1,11 @@
 const initialState = ''
 
+var timeoutId
+
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case 'NEW_NOTIFICATION':
-            return `new anecdote "${action.data}" saved`
-        case 'VOTE_NOTIFICATION':
-            return `you voted for "${action.data}"`
+        case 'CREATE_NOTIFICATION':
+            return action.data
         case 'HIDE_NOTIFICATION':
             return ''
         default:
@@ -13,15 +13,19 @@ const reducer = (state = initialState, action) => {
     }
 }
 
-export const newNotification = (content) => {
-    return {
-        type: 'NEW_NOTIFICATION',
-        data:
-            content
+export const createNotification = (content, time) => {
+    return dispatch => {
+        dispatch({
+          type: 'CREATE_NOTIFICATION',
+          data: content
+        })
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(function(){ dispatch(hideNotification()) }, time*1000);
 
+      }
     }
-}
-
+    
+/*
 export const voteNotification = (content) => {
     return {
         type: 'VOTE_NOTIFICATION',
@@ -30,6 +34,7 @@ export const voteNotification = (content) => {
 
     }
 }
+*/
 
 export const hideNotification = () => {
     console.log('hide notification')
