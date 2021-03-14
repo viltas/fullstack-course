@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import {
   Switch, Route, Link, useHistory, useRouteMatch
 } from "react-router-dom"
+import { useField } from './hooks'
+
 
 const Anecdote = ({ anecdote }) => {
   console.log(anecdote)
   return (
     <div>
-      <h2>{anecdote.content}</h2>
+      <h2>{anecdote.content} by {anecdote.author}</h2>
       <p>has {anecdote.votes} votes</p>
       <p> for more info see <a href={anecdote.info}>{anecdote.info}</a></p>
     </div>
@@ -51,46 +53,57 @@ const Footer = () => (
 const CreateNew = (props) => {
   const history = useHistory()
 
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
 
+
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
   const handleSubmit = (e) => {
 
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     history.push('/')
-    props.setNotification(`A new anecdote ${content} created!`)
+    props.setNotification(`A new anecdote ${content.value} created!`)
     setTimeout(() => {
       props.setNotification('')
     }, 10000)
 
   }
-  
+
+  const clearFields = (e) => {
+    e.preventDefault()
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
+
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
+      <form >
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content.propsNoReset} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author.propsNoReset} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input {...info.propsNoReset} />
         </div>
-        <button>create</button>
+        <button onClick={handleSubmit}>create</button>
+        <button onClick={clearFields}>reset</button>
       </form>
+
     </div>
   )
 
