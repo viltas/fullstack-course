@@ -6,7 +6,7 @@ import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { AppBar, Box, Button, Container, Paper, Table, TableBody,
-  TableCell, TableContainer, TableRow, TableHead, Typography } from '@material-ui/core'
+  TableCell, TableContainer, TableRow, TableHead, Typography, Toolbar, Grid } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 
@@ -74,6 +74,9 @@ const App = () => {
 
 
   const handleLogout = () => {
+    setUsername('')
+    setPassword('')
+    setUser(null)
     window.localStorage.removeItem('loggedBlogUser')
   }
 
@@ -155,22 +158,24 @@ const App = () => {
   }
 
   const loggedIn = () => (
-    <div><Typography>
-      Welcome, {user.name}
-    </Typography>
-    <form onSubmit={handleLogout}>
-      <Button type="submit">logout</Button>
-    </form><p></p>
-    <Togglable className={'new-blog'} buttonLabel='new blog' ref={blogFormRef}>
-      <BlogForm
-        createBlog={addBlog} /></Togglable>
-    {BlogList()}
+    <div>
+      <AppBar position="relative">
+        <Toolbar>
+          <Grid container justify="flex-start"><Typography variant='h6'>Bloglist with Material UI theme</Typography></Grid>
+          <Grid container justify="flex-start"><Typography variant='subtitle1'>
+      Welcome, {user.name}  </Typography></Grid><Grid container justify="flex-end">
+            <Button onClick={handleLogout}>logout</Button>
+            <Button type="submit">users</Button></Grid></Toolbar></AppBar>
+      <br />
+      <Togglable className={'new-blog'} buttonLabel='new blog' ref={blogFormRef}>
+        <BlogForm
+          createBlog={addBlog} /></Togglable>
+      {BlogList()}
     </div>
   )
 
   return (
     <Container disableGutters={true}>
-      <AppBar position="relative"><Typography variant='h6'>Bloglist with Material UI theme</Typography></AppBar>
 
       <Box m={5}>
         <div>
